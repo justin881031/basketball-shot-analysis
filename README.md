@@ -33,6 +33,7 @@ A full‐stack Next.js + Flask app that lets you upload basketball videos, runs 
     venv\Scripts\activate         # Windows
 
     pip install -r requirements.txt
+    python backend.py
 ```
 
 3. **Frontend Setup (Next.js)**
@@ -46,10 +47,6 @@ A full‐stack Next.js + Flask app that lets you upload basketball videos, runs 
 
 * Polls ```http://localhost:5000/analyze?filename=<video>``` every 2s.
 
-4. **Run the Backnd**
-```bash
-    python backend.py
-```
 Creates two folders side by side:
 * backend/video/ – uploaded videos
 * backend/results/ – analysis JSON files
