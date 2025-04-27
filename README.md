@@ -26,6 +26,7 @@ A full‐stack Next.js + Flask app that lets you upload basketball videos, runs 
    git clone https://github.com/your-username/basketball-shot-analysis.git
    cd basketball-shot-analysis
 ```
+
 2. **Backend Setup (Flask)**
 ```bash
     python3 -m venv venv
@@ -35,6 +36,11 @@ A full‐stack Next.js + Flask app that lets you upload basketball videos, runs 
     pip install -r requirements.txt
     python backend.py
 ```
+Creates two folders side by side:
+* backend/video/ – uploaded videos
+* backend/results/ – analysis JSON files
+* CORS is already enabled for http://localhost:3000.
+* On upload, the server spawns a background thread that writes ```results/<video>.json.```
 
 3. **Frontend Setup (Next.js)**
 ```bash
@@ -46,12 +52,6 @@ A full‐stack Next.js + Flask app that lets you upload basketball videos, runs 
 * Uses React + Next.js App Router with a TabView client component.
 
 * Polls ```http://localhost:5000/analyze?filename=<video>``` every 2s.
-
-Creates two folders side by side:
-* backend/video/ – uploaded videos
-* backend/results/ – analysis JSON files
-* CORS is already enabled for http://localhost:3000.
-* On upload, the server spawns a background thread that writes ```results/<video>.json.```
 
 ## Usage
 1. Upload a Video
