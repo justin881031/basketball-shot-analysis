@@ -1,0 +1,37 @@
+{
+    "freeThrow": {
+        "made": 2,
+        "missed": 0
+    },
+    "layup": {
+        "made": 0,
+        "missed": 0
+    },
+    "midrange": {
+        "made": 0,
+        "missed": 0
+    },
+    "threePoint": {
+        "made": 0,
+        "missed": 0
+    },
+    "dunk": {
+        "made": 0,
+        "missed": 0
+    },
+    "shotList": [
+        {
+            "id": 1,
+            "type": "Free Throw",
+            "made": true,
+            "timestamp": "00:00:07"
+        },
+        {
+            "id": 2,
+            "type": "Free Throw",
+            "made": true,
+            "timestamp": "00:00:16"
+        }
+    ],
+    "complete": false
+}

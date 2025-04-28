@@ -1,3 +1,6 @@
+from model_deploy import run_inference_sliding, RNNVideoClassifier
+import torch 
+
 from flask import Flask, request, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 import os
@@ -23,64 +26,11 @@ def analysis_task(video_path: str, json_path: str):
     Runs your shot-detection model on `video_path` and writes out
     intermediate & final results to `json_path`.
     """
-    # Start with an empty structure
-    data = {
-        "freeThrow":   {"made": 0, "missed": 0},
-        "layup":       {"made": 0, "missed": 0},
-        "midrange":    {"made": 0, "missed": 0},
-        "threePoint":  {"made": 0, "missed": 0},
-        "dunk":        {"made": 0, "missed": 0},
-        "shotList":    [],
-        "complete":    False,
-    }
-    # Write initial empty file
-    with open(json_path, "w") as jf:
-        json.dump(data, jf)
-
-    types = ["Free Throw", "Layup", "Midrange", "3PT", "Dunk"]
-    dummy_events = []
-    for i in range(1, 31):
-        sec = i * 5
-        minutes = sec // 60
-        seconds = sec % 60
-        dummy_events.append({
-            "id": i,
-            "type": types[(i-1) % len(types)],
-            "made": (i % 2 == 0),  # even IDs made, odd missed
-            "timestamp": f"{minutes}:{seconds:02d}",
-        })
-
-    cat_map = {
-        "Free Throw": "freeThrow",
-        "Layup":      "layup",
-        "Midrange":   "midrange",
-        "3PT":        "threePoint",
-        "Dunk":       "dunk",
-    }
-
-    for ev in dummy_events:
-        # simulate analysis delay
-        time.sleep(1)
-
-        # update aggregates
-        key = cat_map.get(ev["type"])
-        if key is None:
-            continue
-        field = "made" if ev["made"] else "missed"
-        data[key][field] += 1
-
-        data["shotList"].append(ev)
-
-        # write incremental update
-        with open(json_path, "w") as jf:
-            json.dump(data, jf)
-
-    # finally mark complete
-    data["complete"] = True
-    with open(json_path, "w") as jf:
-        json.dump(data, jf)
-
-
+    model_name = "model/rnn_background.pth"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    classifier = torch.load(model_name, map_location=device)
+    classifier.eval()
+    events = run_inference_sliding(classifier, device, video_path, json_path, threshold=0.6)
 
 @app.route("/upload", methods=["POST"])
 def upload_video():
@@ -105,6 +55,7 @@ def upload_video():
         }, jf)
 
     # Spawn the background thread
+    print("Spawning analysis task thread")
     thread = threading.Thread(
         target=analysis_task,
         args=(save_path, json_path),

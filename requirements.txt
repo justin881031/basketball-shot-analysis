@@ -1,0 +1,5 @@
+openai-clip
+torch
+torchvision
+flask
+flask_cors

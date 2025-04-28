@@ -38,3 +38,7 @@ next-env.d.ts
 
 # Log files
 *.log
+__pycache__/model_deploy.cpython-312.pyc
+model/__pycache__/model_deploy.cpython-312.pyc
+model/__pycache__/data.cpython-312.pyc
+package-lock.json
