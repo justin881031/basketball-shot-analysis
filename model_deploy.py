@@ -143,7 +143,7 @@ def run_inference_sliding(classifier, device, video_path, out_json_path, thresho
 
         pred = pred_class.item()
         print(pred, max_prob_value, features_tensor.shape[1], prev_prob, format_time_hhmmss(idx // int(fps)))
-        if len(features_list) >= 8:
+        if len(features_list) >= 8 or i == len(frame_idxs) - 1:
             ts = format_time_hhmmss(idx // int(fps))
             print(f"Class : {class_map[pred]} detected at {ts} with probs {max_prob_value}!")
 
