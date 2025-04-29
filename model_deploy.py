@@ -7,6 +7,7 @@ import numpy as np
 from PIL import Image
 from model.data import Record
 import torch.nn.functional as F
+import math 
 
 class RNNVideoClassifier(nn.Module):
     def __init__(self, input_dim=512, hidden_dim=1024, num_layers=2, num_classes=11, dropout_prob=0.3):
@@ -52,7 +53,8 @@ def format_time_hhmmss(seconds):
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60
     secs = seconds % 60
-    return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+    return f"{minutes:02d}:{secs:02d}"
+    # return f"{hours:02d}:{minutes:02d}:{secs:02d}"
 
 def process_frame(frame, preprocess, device):
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -120,7 +122,7 @@ def run_inference_sliding(classifier, device, video_path, out_json_path, thresho
 
     scoring_events = []
 
-    frame_ps = fps
+    frame_ps = fps * (8/10)
     frame_idxs = np.linspace(0, total_frames - 1, int(total_frames//frame_ps), dtype=int)
 
     i = 0
@@ -142,9 +144,9 @@ def run_inference_sliding(classifier, device, video_path, out_json_path, thresho
         max_prob_value = max_prob.item()
 
         pred = pred_class.item()
-        print(pred, max_prob_value, features_tensor.shape[1], prev_prob, format_time_hhmmss(idx // int(fps)))
-        if len(features_list) >= 8 or i == len(frame_idxs) - 1:
-            ts = format_time_hhmmss(idx // int(fps))
+        print(pred, max_prob_value, features_tensor.shape[1], prev_prob, format_time_hhmmss(math.ceil(idx/int(fps))))
+        if len(features_list) >= 10 or i == len(frame_idxs) - 1:
+            ts = format_time_hhmmss(math.ceil(idx/int(fps)))
             print(f"Class : {class_map[pred]} detected at {ts} with probs {max_prob_value}!")
 
             record.add_data(pred, ts)

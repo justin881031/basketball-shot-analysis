@@ -14,7 +14,8 @@ class Record:
             "dunk_miss": 6,
             "dunk_make": 7,
             "midrange_make": 8, 
-            "midrange_miss": 9
+            "midrange_miss": 9,
+            "background": 10
         }
         self.data = {
                 "freeThrow":   {"made": 0, "missed": 0},
@@ -65,11 +66,11 @@ class Record:
             shot = {"id": self.shot_id,  "type": "Dunk", "made": True,  "timestamp": ts}
             self.data["shotList"].append(shot)
             
-        elif cls == 8:
+        elif cls == 9:
             self.data["midrange"]["missed"]+= 1
             shot = {"id": self.shot_id,  "type": "Midrange", "made": False,  "timestamp": ts}
             self.data["shotList"].append(shot)
-        elif cls == 9:
+        elif cls == 8:
             self.data["midrange"]["made"]+= 1
             shot = {"id": self.shot_id,  "type": "Midrange", "made": True,  "timestamp": ts}
             self.data["shotList"].append(shot)
