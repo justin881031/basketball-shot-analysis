@@ -168,7 +168,7 @@ def run_inference_sliding(classifier, device, video_path, out_json_path, thresho
     return scoring_events
 
 if __name__ == "__main__":
-    video_path = "model/test_video.mp4"
+    video_path = "model/sample_test_video/threepoint_6.mp4"
     json_path = "model/test_video.json"
     model_name = "model/rnn_background.pth"
     device = "cuda" if torch.cuda.is_available() else "cpu"
