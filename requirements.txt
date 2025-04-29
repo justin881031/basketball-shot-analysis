@@ -1,5 +1,5 @@
-openai-clip
-torch
-torchvision
-flask
-flask_cors
+openai-clip==1.0.1
+torch==2.2.2
+torchvision==0.17.2
+flask==3.1.0
+flask_cors==5.0.1

@@ -8,40 +8,6 @@ from PIL import Image
 from model.data import Record
 import torch.nn.functional as F
 
-
-# def stack_frames(frames, save_path="grid_output.png", resize_dim=(224, 224)):
-#     """
-#     Stack 16 frames into a 4x4 grid and save the output image.
-
-#     Args:
-#         frames (list): List of 16 frames (each frame as a PIL Image or NumPy array).
-#         save_path (str): Path to save the final grid image.
-#         resize_dim (tuple): Resize each frame to this size before stacking (width, height).
-#     """
-
-#     if len(frames) != 16:
-#         raise ValueError("Exactly 16 frames are required to stack into a 4x4 grid.")
-    
-#     # Convert all frames to PIL Images if not already
-#     frames = [Image.fromarray(frame) if not isinstance(frame, Image.Image) else frame for frame in frames]
-
-#     # Resize frames
-#     frames = [frame.resize(resize_dim) for frame in frames]
-
-#     # Stack frames into a 4x4 grid
-#     rows = []
-#     for i in range(0, 16, 4):
-#         row = np.hstack([np.array(frames[i]), np.array(frames[i+1]), np.array(frames[i+2]), np.array(frames[i+3])])
-#         rows.append(row)
-
-#     grid = np.vstack(rows)
-
-#     # Convert back to PIL Image and save
-#     grid_img = Image.fromarray(grid)
-#     grid_img.save(save_path)
-
-#     print(f"Saved stacked frame grid to {save_path}")
-
 class RNNVideoClassifier(nn.Module):
     def __init__(self, input_dim=512, hidden_dim=1024, num_layers=2, num_classes=11, dropout_prob=0.3):
         super().__init__()
@@ -107,8 +73,8 @@ def predict_clip_rnn(feature_sequence, classifier):
     """ feature_sequence shape: (1, 8, 512) """
     with torch.no_grad():
         outputs = classifier(feature_sequence)  # (1, num_classes)
-        probs = torch.softmax(outputs, dim=1)
-    return probs
+        # probs = torch.softmax(outputs, dim=1)
+    return outputs
 
 def initiate_clip(device):
     clip_model, preprocess = clip.load("ViT-B/32", device=device)
@@ -150,24 +116,25 @@ def run_inference_sliding(classifier, device, video_path, out_json_path, thresho
 
     features_list = []  # list to hold last 8 frame features
     game_prob_list = []
+    prev_prob = 0
 
     scoring_events = []
 
-    frame_ps = fps//2
+    frame_ps = fps
     frame_idxs = np.linspace(0, total_frames - 1, int(total_frames//frame_ps), dtype=int)
 
     i = 0
     while i < len(frame_idxs):
-        while len(features_list) < 16 and i < len(frame_idxs):
-            idx = frame_idxs[i]
-            cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
-            _, frame = cap.read()
-            frame_tensor = process_frame(frame, preprocess, device)
-            feature, is_game_prob = encode_clip(frame_tensor, clip_model, bball_game_norm)
-            features_list.append(feature) 
-            game_prob_list.append(is_game_prob)
+        # while len(features_list) < 8 and i < len(frame_idxs):
+        idx = frame_idxs[i]
+        cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
+        _, frame = cap.read()
+        frame_tensor = process_frame(frame, preprocess, device)
+        feature, is_game_prob = encode_clip(frame_tensor, clip_model, bball_game_norm)
+        features_list.append(feature) 
+        game_prob_list.append(is_game_prob)
             # print(game_prob_list)
-            i += 1
+            #i += 1
 
         features_tensor = torch.stack(features_list).unsqueeze(0)  # shape: (1, 8, 512)
         probs = predict_clip_rnn(features_tensor, classifier)
@@ -175,17 +142,10 @@ def run_inference_sliding(classifier, device, video_path, out_json_path, thresho
         max_prob_value = max_prob.item()
 
         pred = pred_class.item()
-        if max_prob_value > threshold and pred != 10:
+        print(pred, max_prob_value, features_tensor.shape[1], prev_prob, format_time_hhmmss(idx // int(fps)))
+        if len(features_list) >= 8:
             ts = format_time_hhmmss(idx // int(fps))
             print(f"Class : {class_map[pred]} detected at {ts} with probs {max_prob_value}!")
-
-            # stack = []
-            # for j in range(i - 16, i):
-            #     cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idxs[j])
-            #     _, frame = cap.read() 
-            #     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            #     stack.append(Image.fromarray(frame).convert("RGB"))
-            # stack_frames(stack, save_path=f"test/{class_map[pred]}_{ts}.jpg")
 
             record.add_data(pred, ts)
             record.out()
@@ -194,11 +154,12 @@ def run_inference_sliding(classifier, device, video_path, out_json_path, thresho
             features_list = []
             game_prob_list = []
             
-        else:
-            features_list.pop(0)
-            game_prob_list.pop(0)
+        # elif features_tensor.shape[1] >= 32:
+        #     features_list.pop(0)
+        #     game_prob_list.pop(0)
 
         i += 1
+        prev_prob = max_prob_value
 
     cap.release()
     record.complete()
