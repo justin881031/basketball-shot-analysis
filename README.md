@@ -78,6 +78,8 @@ cd BASKETBALL-SHOT-ANALYSIS
 python model_deploy.py
 ```
 
+You may also test out the model with various sample video clips we prepared under **model/sample_test_video** by running **model_deploy.py** (change test video path in main function call), or you may test the videos using our UI.
+
 2. Train model
 
 Clone dataset from https://huggingface.co/datasets/linhuaian3/nus-basketball-detection-cs5260 under **model/train** directory, and run the following script:

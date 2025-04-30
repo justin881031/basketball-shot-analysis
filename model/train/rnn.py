@@ -1,7 +1,7 @@
 import torch.nn as nn 
 
 class RNNVideoClassifier(nn.Module): 
-    def __init__(self, input_dim=768, hidden_dim=1024, num_layers=2, num_classes=11, dropout_prob=0.3):
+    def __init__(self, input_dim=512, hidden_dim=1024, num_layers=2, num_classes=11, dropout_prob=0.3):
         super().__init__()
         self.rnn = nn.GRU(input_dim, hidden_dim, num_layers, batch_first=True, dropout=dropout_prob)
 
