@@ -79,11 +79,12 @@ python model_deploy.py
 ```
 
 2. Train model
-Clone dataset from https://huggingface.co/datasets/linhuaian3/nus-basketball-detection-cs5260 under **model/train** directory.
+
+Clone dataset from https://huggingface.co/datasets/linhuaian3/nus-basketball-detection-cs5260 under **model/train** directory, and run the following script:
 ```bash
 cd BASKETBALL-SHOT-ANALYSIS
 python model_deploy.py
 ```
 
 ## Future Work
-    * Predictions results are good on basketball shot attempt clips, however, performance becomes poorer when shot attempt boundaries are not clearly defined due to distribution shift. We could train another model on top of the existing model to define shot boundaries, or explore advanced object detection models such as Detectron2. 
+Predictions results are good on basketball shot attempt clips, however, performance becomes poorer when shot attempt boundaries are not clearly defined due to distribution shift. We could train another model on top of the existing model to define shot boundaries, or explore advanced object detection models such as Detectron2. 
