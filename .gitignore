@@ -42,3 +42,4 @@ __pycache__/model_deploy.cpython-312.pyc
 model/__pycache__/model_deploy.cpython-312.pyc
 model/__pycache__/data.cpython-312.pyc
 package-lock.json
+model/train/__pycache__/rnn.cpython-312.pyc
